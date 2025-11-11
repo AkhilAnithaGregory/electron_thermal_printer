@@ -5,8 +5,11 @@ const path = require("path");
 const { PDFDocument } = require("pdf-lib");
 const pdfToPrinter = require("pdf-to-printer");
 const os = require("os");
+const cors = require("cors");
 
 const app = express();
+app.use(cors());
+app.options("*", cors());
 app.use(bodyParser.json({ limit: "20mb" }));
 
 app.post("/print", async (req, res) => {
@@ -88,7 +91,8 @@ app.post("/print", async (req, res) => {
     });
 
     const updatedPdfBytes = await pdfDoc.save();
-    const tempFilePath = path.join(os.tmpdir(), `temp_${Date.now()}.pdf`);
+    const tempDir = os.tmpdir();
+    const tempFilePath = path.resolve(tempDir, `temp_${Date.now()}.pdf`);
     fs.writeFileSync(tempFilePath, updatedPdfBytes);
 
     console.log("Sending to printers:", printernamefromfrontend);
